@@ -1,14 +1,17 @@
 import { Link } from 'react-router'
-import { RegisterOptions, useForm } from 'react-hook-form'
-import { getRules } from '../../utils/rules'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { schema, Schema } from '../../utils/rules'
 import Input from '../../components/Input'
 
 // use this FormData as generic type to control type of data in form
-interface FormData {
-  email: string
-  password: string
-  confirm_password: string
-}
+// interface FormData {
+//   email: string
+//   password: string
+//   confirm_password: string
+// }
+
+type FormData = Schema
 
 export default function Register() {
   const {
@@ -17,9 +20,11 @@ export default function Register() {
     //watch,
     getValues,
     formState: { errors }
-  } = useForm<FormData>()
+  } = useForm<FormData>({
+    resolver: yupResolver(schema)
+  })
 
-  const rules = getRules(getValues)
+  // const rules = getRules(getValues)
 
   // handleSubmit only runs when form is valis
   const onSubmit = handleSubmit(
@@ -47,7 +52,7 @@ export default function Register() {
                 className='mt-8'
                 errorMessage={errors.email?.message}
                 placeholder='Email'
-                rules={rules.email}
+                // rules={rules.email}
               />
 
               <Input
@@ -57,7 +62,7 @@ export default function Register() {
                 className='mt-2'
                 errorMessage={errors.password?.message}
                 placeholder='Password'
-                rules={rules.password}
+                // rules={rules.password}
                 autoComplete='on'
               />
 
@@ -68,7 +73,7 @@ export default function Register() {
                 className='mt-2'
                 errorMessage={errors.confirm_password?.message}
                 placeholder='Confirm Password'
-                rules={rules.confirm_password}
+                // rules={rules.confirm_password}
                 autoComplete='on'
               />
 

@@ -55,3 +55,7 @@ npm install -D tailwindcss postcss autoprefixer
 - seperate `rules` for `input` as objects in seperate file (`utils` folder - `rules` file) for re-use later
 
 - create reusable `input` component (./components/Input)
+
+- use `yup` as a library to validate schema. It will validate input data against schema and return with either errors or a valid result.
+
+- set up `axios` and `react query`. Create file http.ts to start with `axios`
