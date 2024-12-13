@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 export default function RegisterHeader() {
   return (
     <header className='py-5'>
-      <div className='max-w-7xl mx-auto px-4'>
+      <div className='container'>
         <nav className='flex items-end'>
           <Link to='/'>
             <svg className='h-8 lg:h-11 fill-orange' enable-background='0 0 889 281' viewBox='0 0 889 281'>
