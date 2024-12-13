@@ -58,4 +58,4 @@ npm install -D tailwindcss postcss autoprefixer
 
 - use `yup` as a library to validate schema. It will validate input data against schema and return with either errors or a valid result.
 
-- set up `axios` and `react query`. Create file http.ts to start with `axios`
+- set up `axios` and `react query`. First, create file http.ts (in `utils` folder) to create an instance of `axios`.
