@@ -53,3 +53,5 @@ npm install -D tailwindcss postcss autoprefixer
 ```
 
 - seperate `rules` for `input` as objects in seperate file (`utils` folder - `rules` file) for re-use later
+
+- create reusable `input` component (./components/Input)
