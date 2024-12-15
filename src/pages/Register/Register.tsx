@@ -1,8 +1,14 @@
 import { Link } from 'react-router'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { schema, Schema } from '../../utils/rules'
+import { useMutation } from '@tanstack/react-query'
+import { omit } from 'lodash'
+
 import Input from '../../components/Input'
+import { Schema, schema } from '../../utils/rules'
+import { registerAccount } from '../../api/auth.api'
+import { isAxiosUnprocessableEntityError } from '../../utils/utils'
+import { ApiResponse } from '../../types/utils.type'
 
 // use this FormData as generic type to control type of data in form
 // interface FormData {
@@ -18,26 +24,61 @@ export default function Register() {
     register, // register the value entered in input to 'react hook form'
     handleSubmit,
     //watch,
-    getValues,
+    setError,
     formState: { errors }
   } = useForm<FormData>({
     resolver: yupResolver(schema)
   })
 
-  // const rules = getRules(getValues)
+  const registerAccountMutation = useMutation({
+    mutationFn: (body: Omit<FormData, 'confirm_password'>) => registerAccount(body)
+  })
 
-  // handleSubmit only runs when form is valis
-  const onSubmit = handleSubmit(
-    (data) => {},
-    (data) => {
-      const password = getValues('password')
-      console.log(password) // form data
-    }
-  )
+  // handleSubmit only runs when form data is valid
+  const onSubmit = handleSubmit((data) => {
+    // console.log(data)
+    const body = omit(data, ['confirm_password']) // omit 'confirm_password' from form input data
+    // console.log(body)
+    registerAccountMutation.mutate(body, {
+      onSuccess: (data) => {
+        console.log(data)
+      },
+      onError: (error) => {
+        // console.log(error)
+        if (isAxiosUnprocessableEntityError<ApiResponse<Omit<FormData, 'confirm_password'>>>(error)) {
+          // console.log(error)
+          const formError = error.response?.data.data
+          if (formError) {
+            Object.keys(formError).forEach((key) => {
+              setError(key as keyof Omit<FormData, 'confirm_password'>, {
+                message: formError[key as keyof Omit<FormData, 'confirm_password'>],
+                type: 'Server'
+              })
+            })
+          }
+
+          // if (formError?.email) {
+          //   setError('email', {
+          //     message: formError.email,
+          //     type: 'Server'
+          //   })
+          // }
+
+          // if (formError?.password) {
+          //   setError('password', {
+          //     message: formError.password,
+          //     type: 'Server'
+          //   })
+          // }
+        }
+      }
+    })
+  })
 
   // const value = watch()
   // console.log(value)
   // console.log('errors', errors)
+
   return (
     <div className='bg-orange'>
       <div className='container'>
