@@ -80,7 +80,7 @@ npm install -D tailwindcss postcss autoprefixer
 type FormData = Omit<Schema, 'confirm_password'>
 ```
 
-### 3.6. UI Header (Main Layout) - chua git
+### 3.6. UI Header (Main Layout)
 
 - re-use Footer
 - create `Header` component for `main layout` which is different from `register layout`
@@ -96,5 +96,18 @@ npm install motion
 npm install @floating-ui/react
 ```
 
-- create `Popover` to re-use
-- implement `Popover` on `cart`
+- create `Popover` component to re-use for different popover comonents
+- create `cart` based on `Popover` component
+- setup `protected route` and `rejected route` with `react-router`: create `ProtectedRoute` inside `useRouteElements.tsx` file
+
+```tsx
+const isAuthenticated = false
+
+function ProtectedRoute() {
+  return isAuthenticated ? <Outlet /> : <Navigate to='/login' />
+}
+
+function RejectedRoute() {
+  return !isAuthenticated ? <Outlet /> : <Navigate to='/' />
+}
+```
