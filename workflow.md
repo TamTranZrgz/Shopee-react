@@ -80,4 +80,21 @@ npm install -D tailwindcss postcss autoprefixer
 type FormData = Omit<Schema, 'confirm_password'>
 ```
 
-### 3.6. UI Header (Main Layout)
+### 3.6. UI Header (Main Layout) - chua git
+
+- re-use Footer
+- create `Header` component for `main layout` which is different from `register layout`
+- use `framer motion` library for popover
+
+```bash
+npm install motion
+```
+
+- use `floating ui` library to calculate positions to display floating elements suchas as tooltips, popovers, dropdowns, etc. and optionally create interactions for them
+
+```bash
+npm install @floating-ui/react
+```
+
+- create `Popover` to re-use
+- implement `Popover` on `cart`
