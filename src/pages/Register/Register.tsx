@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
@@ -8,7 +8,10 @@ import Input from '../../components/Input'
 import { Schema, schema } from '../../utils/rules'
 import { registerAccount } from '../../api/auth.api'
 import { isAxiosUnprocessableEntityError } from '../../utils/utils'
-import { ApiResponse } from '../../types/utils.type'
+import { ErrorResponse } from '../../types/utils.type'
+import { useContext } from 'react'
+import { AppContext } from '../../contexts/app.context'
+import Button from '../../components/Button'
 
 // use this FormData as generic type to control type of data in form
 // interface FormData {
@@ -20,6 +23,8 @@ import { ApiResponse } from '../../types/utils.type'
 type FormData = Schema
 
 export default function Register() {
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
+  const navigate = useNavigate()
   const {
     register, // register the value entered in input to 'react hook form'
     handleSubmit,
@@ -41,11 +46,14 @@ export default function Register() {
     // console.log(body)
     registerAccountMutation.mutate(body, {
       onSuccess: (data) => {
-        console.log(data)
+        // console.log(data)
+        setIsAuthenticated(true)
+        setProfile(data.data.data.user)
+        navigate('/')
       },
       onError: (error) => {
         // console.log(error)
-        if (isAxiosUnprocessableEntityError<ApiResponse<Omit<FormData, 'confirm_password'>>>(error)) {
+        if (isAxiosUnprocessableEntityError<ErrorResponse<Omit<FormData, 'confirm_password'>>>(error)) {
           // console.log(error)
           const formError = error.response?.data.data
           if (formError) {
@@ -119,12 +127,14 @@ export default function Register() {
               />
 
               <div className='mt-2'>
-                <button
+                <Button
+                  disabled={registerAccountMutation.isPending}
+                  isLoading={registerAccountMutation.isPending}
                   type='submit'
-                  className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'
+                  className='flex justify-center items-center w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'
                 >
                   Register
-                </button>
+                </Button>
               </div>
 
               <div className='flex items-center justify-center mt-8'>

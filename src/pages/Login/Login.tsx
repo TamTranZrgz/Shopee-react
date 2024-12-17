@@ -1,17 +1,22 @@
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { useForm } from 'react-hook-form'
 import { useMutation } from '@tanstack/react-query'
 import { login } from '../../api/auth.api'
 import { schema, Schema } from '../../utils/rules'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { isAxiosUnprocessableEntityError } from '../../utils/utils'
-import { ApiResponse } from '../../types/utils.type'
+import { ErrorResponse } from '../../types/utils.type'
 import Input from '../../components/Input'
+import { useContext } from 'react'
+import { AppContext } from '../../contexts/app.context'
+import Button from '../../components/Button'
 
 type FormData = Omit<Schema, 'confirm_password'> // LoginSchema
 const loginSchema = schema.omit(['confirm_password'])
 
 export default function Login() {
+  const { setIsAuthenticated, setProfile } = useContext(AppContext)
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -30,11 +35,14 @@ export default function Login() {
     // console.log(data)
     loginMutation.mutate(data, {
       onSuccess: (data) => {
-        console.log(data)
+        //console.log(data)
+        setIsAuthenticated(true)
+        setProfile(data.data.data.user)
+        navigate('/')
       },
       onError: (error) => {
         // console.log(error)
-        if (isAxiosUnprocessableEntityError<ApiResponse<FormData>>(error)) {
+        if (isAxiosUnprocessableEntityError<ErrorResponse<FormData>>(error)) {
           // console.log(error)
           const formError = error.response?.data.data
           if (formError) {
@@ -79,17 +87,19 @@ export default function Login() {
                 autoComplete='on'
               />
               <div className='mt-3'>
-                <button
+                <Button
+                  disabled={loginMutation.isPending}
+                  isLoading={loginMutation.isPending}
                   type='submit'
-                  className='w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'
+                  className='flex justify-center items-center w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'
                 >
-                  Login
-                </button>
+                  Dang nhap
+                </Button>
               </div>
               <div className='flex items-center justify-center mt-8'>
                 <span className='text-gray-400'>New to Shopee?</span>
                 <Link className='text-red-400 ml-1' to='/register'>
-                  Sign Up
+                  Dang ky
                 </Link>
               </div>
             </form>

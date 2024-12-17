@@ -111,3 +111,13 @@ function RejectedRoute() {
   return !isAuthenticated ? <Outlet /> : <Navigate to='/' />
 }
 ```
+
+### 3.7. Complete authentication module and Optimization
+
+- to manage the `authentication mode`, use `state` of ``Context API` -> create `app.context.tsx` file (contexts folder).
+- create `auth.ts` (in `utils` folder) to create functions serving the authenticaton such as : save access_token to local storage, remove access_token from local storage, get access_token from local storage
+- create a context to manage the authentication state for the whole app, and use the `provider` to wrap the app (`main.tsx` file)
+- handle `login` at `axios` stage (`https.ts` file in `utils` folder) -> save `access_token` to local storage (use Interceptor). At the same time, use `interceptors` to get access_token from LS when app start, and save it to RAM memory (retrieve info from RAM with be faster than from LS).
+- implement `navigate` to redirect user to pages that user has permission after actions such as `login`, `register`, `logout`
+- prevent user from clicking on `submit button` continuously on `login` and `register` page: create a `Button` component to re-use in `login` and `register` pages
+- set `profile` for user after login/register: same as working with access_token
