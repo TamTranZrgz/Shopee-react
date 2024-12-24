@@ -22,6 +22,11 @@ export default tseslint.config(
     env: {
       node: true
     },
+    settings: {
+      'import/resolver': {
+        typescript: {} // Use TypeScript's alias resolution
+      }
+    },
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],

@@ -6,7 +6,7 @@ import { omit } from 'lodash'
 
 import Input from '../../components/Input'
 import { Schema, schema } from '../../utils/rules'
-import { registerAccount } from '../../api/auth.api'
+import authApi from '../../api/auth.api'
 import { isAxiosUnprocessableEntityError } from '../../utils/utils'
 import { ErrorResponse } from '../../types/utils.type'
 import { useContext } from 'react'
@@ -20,7 +20,9 @@ import Button from '../../components/Button'
 //   confirm_password: string
 // }
 
-type FormData = Schema
+type FormData = Pick<Schema, 'email' | 'password' | 'confirm_password'>
+
+const registerSchema = schema.pick(['email', 'password', 'confirm_password'])
 
 export default function Register() {
   const { setIsAuthenticated, setProfile } = useContext(AppContext)
@@ -32,11 +34,11 @@ export default function Register() {
     setError,
     formState: { errors }
   } = useForm<FormData>({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(registerSchema)
   })
 
   const registerAccountMutation = useMutation({
-    mutationFn: (body: Omit<FormData, 'confirm_password'>) => registerAccount(body)
+    mutationFn: (body: Omit<FormData, 'confirm_password'>) => authApi.registerAccount(body)
   })
 
   // handleSubmit only runs when form data is valid
@@ -90,9 +92,9 @@ export default function Register() {
   return (
     <div className='bg-orange'>
       <div className='container'>
-        <div className='grid grid-cols-1 lg:grid-cols-5 py-12 lg:py-32 lg:pr-10'>
+        <div className='grid grid-cols-1 py-12 lg:grid-cols-5 lg:py-32 lg:pr-10'>
           <div className='lg:col-span-2 lg:col-start-4'>
-            <form onSubmit={onSubmit} className='p-10 rounded bg-white shadow-sm' noValidate>
+            <form onSubmit={onSubmit} className='rounded bg-white p-10 shadow-sm' noValidate>
               <div className='text-2xl'>Register</div>
               <Input
                 name='email'
@@ -131,15 +133,15 @@ export default function Register() {
                   disabled={registerAccountMutation.isPending}
                   isLoading={registerAccountMutation.isPending}
                   type='submit'
-                  className='flex justify-center items-center w-full text-center py-4 px-2 uppercase bg-red-500 text-white text-sm hover:bg-red-600'
+                  className='flex w-full items-center justify-center bg-red-500 px-2 py-4 text-center text-sm uppercase text-white hover:bg-red-600'
                 >
                   Register
                 </Button>
               </div>
 
-              <div className='flex items-center justify-center mt-8'>
+              <div className='mt-8 flex items-center justify-center'>
                 <span className='text-gray-400'>Have an account?</span>
-                <Link className='text-red-400 ml-1' to='/login'>
+                <Link className='ml-1 text-red-400' to='/login'>
                   Login
                 </Link>
               </div>

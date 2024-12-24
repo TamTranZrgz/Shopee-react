@@ -58,6 +58,15 @@ export const getRules = (getValues?: UseFormGetValues<any>): Rules => ({
   }
 })
 
+// create function to re-use for validation of 'price_max' and 'price_min'
+function testPriceMinMax(this: yup.TestContext<yup.AnyObject>) {
+  const { price_min, price_max } = this.parent as { price_min: string; price_max: string }
+  if (price_min !== '' && price_max !== '') {
+    return Number(price_max) >= Number(price_min)
+  }
+  return price_min !== '' || price_max !== ''
+}
+
 // this schema can be considered as main schema, and can be used for different form validation, by `obmit` some fields if not neccessary
 export const schema = yup.object({
   email: yup
@@ -76,7 +85,17 @@ export const schema = yup.object({
     .required(MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED)
     .min(6, MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_160_CHARACTERS)
     .max(160, MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_160_CHARACTERS)
-    .oneOf([yup.ref('password')], MESSAGES.CONFIRM_PASSWORD_DOES_NOT_MATCH)
+    .oneOf([yup.ref('password')], MESSAGES.CONFIRM_PASSWORD_DOES_NOT_MATCH),
+  price_min: yup.string().test({
+    name: 'price-not-allowed', // name of test
+    message: 'Gia khong phu hop',
+    test: testPriceMinMax
+  }),
+  price_max: yup.string().test({
+    name: 'price-not-allowed', // name of test
+    message: 'Gia khong phu hop',
+    test: testPriceMinMax
+  })
 })
 
 // omit `confirm_password` field from main schema to get schema for 'login' form

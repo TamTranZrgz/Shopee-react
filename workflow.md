@@ -22,6 +22,10 @@ npm i prettier eslint-config-prettier eslint-plugin-prettier @types/node -D
 npm install -D tailwindcss postcss autoprefixer
 ```
 
+### import path
+
+- there are 3 environments we will work with: VS code (will direct us to that file when we click on it), ESLint, and Terminal
+
 ## 2. React Router
 
 - use `useRoutes` as a customized hook, return value of `useRoutes` is a React element, and is also used to render the route tree
@@ -121,3 +125,99 @@ function RejectedRoute() {
 - implement `navigate` to redirect user to pages that user has permission after actions such as `login`, `register`, `logout`
 - prevent user from clicking on `submit button` continuously on `login` and `register` page: create a `Button` component to re-use in `login` and `register` pages
 - set `profile` for user after login/register: same as working with access_token
+
+## 4. Product List Page (Home Page)
+
+### 4.1. UI for Aside Filter, SortProductList and Product
+
+- Filtering aside: Display all catagories, According to Price, According to Evaluation, and Delete all filtering
+- Main parts: SortProductList (Most Popular, Newest, Most Sale, Price), Pagination, Grid of products
+- Because `AsideFilter`, `SortProductList`, and `Product` only exist in `Product List` page, we will create them as `components` in `ProductList` folder
+- install package `Multi-line truncation` to truncate the long title
+
+```bash
+npm install @tailwindcss/line-clamp
+```
+
+Add to `tailwind.config.js` file
+
+```js
+plugins: [
+  plugin(function ({ addComponents, theme }) {
+    addComponents({
+      '.container': {
+        maxWidth: theme('columns.7xl'),
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        paddingLeft: theme('spacing.4'),
+        paddingRight: theme('spacing.4')
+      }
+    })
+  }),
+  require('@tailwindcss/line-clamp')
+]
+```
+
+### 4.2. DEfine product interface and api
+
+- product api: GET `/products`
+- create three interfaces `Product`, `ProductList`, `ProductListConfig` with `product.type.ts` file (`types` folder)
+- create `productApi` in `product.api.ts` file (`api` folder)
+
+### 4.3. Render products in `ProductList` page
+
+- create `seQueryParams()` function to get params from URL (`useQueryParams.tsx` file in `hooks` folder)
+- use `useQuery` to render data in `ProductList` page
+- in `product` info, there are properties that need attention such as `price` and `quantity`. We will use `Intl.NumberFormat` for their format (Reference: [Format_a_number_as_currency_in_js](https://dev.to/saranshk/how-to-format-a-number-as-currency-in-javascript-587b)). Create two functions `formatNumberToSocialStyle` (ex: 55k, 2k) and `formatCurrency` (ex: $, e, vnd)
+- work with `ProductRating`: create `ProductRating` component. We will use this algorithm
+
+Ex: display rating (series of star) if rating = 3.4
+1 <= 3.4 => 100% yellow star (the first star)
+2 <= 3.4 => 100% yellow star (the secondstar)
+3 <= 3.4 => 100% yellow star (the third star)
+4 > 3.4 => 40% (4 - 3.4 < 1) (the fourth star)
+5 > 3.4 => 0% (5- 3.4 > 1)
+
+### 4.4. Pagination
+
+- use `Link` to move between pages
+- Use this format for pagination with gap of 2 unit
+
+[1] 2 3 ... 19 20
+1 [2] 3 4 ... 19 20
+1 2 [3] 4 5 ... 19 20
+1 2 3 [4] 5 6 ... 19 20
+1 2 3 4 [5] 6 7 ... 19 20
+
+1 2 ... 4 5 [6] 7 8 ... 19 20
+1 2 ... 13 14 [15] 16 17 ... 19 20
+
+1 2 ... 14 15 [16] 17 18 19 20
+1 2 ... 15 16 [17] 18 19 20
+1 2 ... 16 17 [18] 19 20
+1 2 ... 17 18 [19] 20
+1 2 ... 18 19 [20]
+
+- create `Pagination` component
+- in `ProductList` page, `filter` or `pagination` will be manipulated through `query` from URL. The reason for using through query of URL, but not through `state` of React is: if we want to copy and pass the link of the page at that time with our chosen queries, it will be maintained when other received that link.
+- when we define the `interface` for `query`, there will be queries with possibilities of undefined. We can use `lodash` library (`omit` function) to omit undefined query
+
+### 4.5. SortProductList
+
+### 4.6. AsideFilter
+
+- filter accroding to `category`: first, create `Category` interface (`types` folder) and `categoryApi` (`api` folder).
+
+- filter according to `range of price`
+
+- filter accroding to rating
+
+- delete all filter
+
+## 5. Product Detail Page
+
+### 5.1. UI Product Detail
+
+## Reference:
+
+[Format_a_number_as_currency_in_js](https://dev.to/saranshk/how-to-format-a-number-as-currency-in-javascript-587b)
