@@ -218,6 +218,8 @@ Ex: display rating (series of star) if rating = 3.4
 
 ### 5.1. UI Product Detail
 
+- create folder `ProductDetail` in `pages` folder, set route in `useRouteElements` file
+
 ## Reference:
 
 [Format_a_number_as_currency_in_js](https://dev.to/saranshk/how-to-format-a-number-as-currency-in-javascript-587b)
