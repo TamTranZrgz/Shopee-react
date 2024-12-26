@@ -26,3 +26,17 @@ export function formatNumberToSocialStyle(value: number) {
 
 export const saleRate = (originalPrice: number, afterSalePrice: number) =>
   Math.round(((originalPrice - afterSalePrice) / originalPrice) * 100) + '%'
+
+const removeSpecialCharacter = (str: string) =>
+  // eslint-disable-next-line no-useless-escape
+  str.replace(/!|@|%|\^|\*|\(|\)|\+|\=|\<|\>|\?|\/|,|\.|\:|\;|\'|\"|\&|\#|\[|\]|~|\$|_|`|-|{|}|\||\\/g, '')
+
+// Ex: Format name-of-product and id of product before displaying them on URL
+export const generateNameAndId = ({ name, id }: { name: string; id: string }) => {
+  return removeSpecialCharacter(name).replace(/\s/g, '-') + `-i-${id}`
+}
+
+export const getIdFromNameAndId = (nameAndId: string) => {
+  const arr = nameAndId.split('-i-')
+  return arr[arr.length - 1]
+}

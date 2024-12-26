@@ -3,35 +3,119 @@ import { useParams } from 'react-router'
 import DOMPurify from 'dompurify' // exclude js from html
 import productApi from '../../api/product.api'
 import ProductRating from '../../components/ProductRating'
-import { formatCurrency, formatNumberToSocialStyle, saleRate } from '../../utils/utils'
+import { formatCurrency, formatNumberToSocialStyle, getIdFromNameAndId, saleRate } from '../../utils/utils'
 import NumberInput from '../../components/NumberInput'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Product } from '../../types/product.type'
 
 export default function ProductDetail() {
-  const { id } = useParams()
+  const { nameAndId } = useParams()
+  // console.log(nameId)
+  const id = getIdFromNameAndId(nameAndId as string)
+  // console.log(id)
   const { data: productDetailData } = useQuery({
     queryKey: ['product', id],
     queryFn: () => productApi.getProductDetails(id as string)
   })
 
+  // Image slider
+  const [currentImagesIndex, setCurrentImagesIndex] = useState([0, 5])
+  const [activeImage, setActiveImage] = useState('')
+
+  // Get product details
   const product = productDetailData?.data.data
   //console.log(product)
+
+  // For zooming image
+  const imageRef = useRef<HTMLImageElement>(null)
+
+  // Get images of product
+  const currentImages = useMemo(
+    () => (product ? product.images.slice(...currentImagesIndex) : []),
+    [product, currentImagesIndex]
+  )
+  // console.log(currentImages)
+
+  // set active image when calling to product api
+  useEffect(() => {
+    if (product && product.images.length > 0) {
+      setActiveImage(product.images[0])
+    }
+  }, [product])
+
+  // Slider handle
+  const next = () => {
+    console.log(currentImagesIndex[1])
+    if (currentImagesIndex[1] < (product as Product)?.image.length) {
+      setCurrentImagesIndex((prev) => [prev[0] + 1, prev[1] + 1])
+    }
+  }
+
+  const prev = () => {
+    if (currentImagesIndex[0] > 0) {
+      setCurrentImagesIndex((prev) => [prev[0] - 1, prev[1] - 1])
+    }
+  }
+
+  // function to choose active image (this action will run when we hover (onMouseEnter) on an image )
+  const chooseActiveImage = (img: string) => {
+    setActiveImage(img)
+  }
+
+  // Zoom image
+  const handleZoom = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    // get height and width of 'div' containing image
+    const rect = event.currentTarget.getBoundingClientRect()
+
+    // get current image of ref
+    const image = imageRef.current as HTMLImageElement
+
+    // get original value of image
+    const { naturalHeight, naturalWidth } = image
+
+    // calculate top and left
+    const { offsetX, offsetY } = event.nativeEvent // position of mouse in element
+    const top = offsetY * (1 - naturalHeight / rect.height)
+    const left = offsetX * (1 - naturalWidth / rect.width)
+
+    // set width and hieght for image
+    image.style.width = naturalWidth + 'px'
+    image.style.height = naturalHeight + 'px'
+    image.style.maxWidth = 'unset'
+    image.style.top = top + 'px'
+    image.style.left = left + 'px'
+  }
+
+  // reset image to original state after finishing zoom
+  const handleZoomRemove = () => {
+    imageRef.current?.removeAttribute('style')
+  }
+
   if (!product) return null
   return (
     <div className='bg-gray-200 py-6'>
       {/* Product Info */}
-      <div className='bg-white py-4 shadow'>
-        <div className='container'>
+      <div className='container'>
+        <div className='bg-white py-4 shadow'>
           <div className='grid grid-cols-12 gap-9'>
             <div className='col-span-5'>
-              <div className='relative w-full pt-[100%] shadow'>
+              <div
+                className='relative w-full cursor-zoom-in overflow-hidden pt-[100%] shadow'
+                onMouseMove={handleZoom}
+                onMouseLeave={handleZoomRemove}
+              >
                 <img
-                  className='absolute left-0 top-0 h-full w-full bg-white object-cover'
-                  src={product.image}
+                  className='pointer-events-none absolute left-0 top-0 h-full w-full bg-white object-cover'
+                  src={activeImage}
                   alt={product.name}
+                  ref={imageRef}
                 />
               </div>
               <div className='relative mt-4 grid grid-cols-5 gap-1'>
-                <button className='absolute left-0 top-1/2 z-10 h-9 w-5 -translate-y-1/2 bg-black/20 text-white'>
+                <button
+                  onClick={prev}
+                  className='absolute left-0 top-1/2 z-10 h-9 w-5 -translate-y-1/2 bg-black/20 text-white'
+                >
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
                     fill='none'
@@ -43,20 +127,23 @@ export default function ProductDetail() {
                     <path strokeLinecap='round' strokeLinejoin='round' d='M15.75 19.5 8.25 12l7.5-7.5' />
                   </svg>
                 </button>
-                {product.images.slice(0, 5).map((img, index) => {
-                  const isActive = index === 0
+                {currentImages.map((img) => {
+                  const isActive = img === activeImage
                   return (
-                    <div className='relative w-full pt-[100%]'>
+                    <div className='relative w-full pt-[100%]' key={img} onMouseEnter={() => chooseActiveImage(img)}>
                       <img
                         className='absolute left-0 top-0 h-full w-full cursor-pointer bg-white object-cover'
-                        src={product.image}
+                        src={img}
                         alt={product.name}
                       />
                       {isActive && <div className='absolute inset-0 border-2 border-orange'></div>}
                     </div>
                   )
                 })}
-                <button className='absolute right-0 top-1/2 z-10 h-9 w-5 -translate-y-1/2 bg-black/20 text-white'>
+                <button
+                  className='absolute right-0 top-1/2 z-10 h-9 w-5 -translate-y-1/2 bg-black/20 text-white'
+                  onClick={next}
+                >
                   <svg
                     xmlns='http://www.w3.org/2000/svg'
                     fill='none'
@@ -171,8 +258,8 @@ export default function ProductDetail() {
       {/* Product Info */}
 
       {/* Product Description */}
-      <div className='shadpw mt-8 bg-white p-4'>
-        <div className='container'>
+      <div className='container'>
+        <div className='shadpw mt-8 bg-white p-4'>
           <div className='rounded bg-gray-50 p-4 text-lg capitalize text-slate-700'>Mô tả sản phẩm</div>
           <div className='mx-4 mb-4 mt-12 text-sm leading-loose'>
             {/* Render HTML text in react component */}

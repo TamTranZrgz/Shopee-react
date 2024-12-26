@@ -43,7 +43,9 @@ export default tseslint.config(
           printWidth: 120,
           jsxSingleQuote: true
         }
-      ]
+      ],
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn'
     }
   }
 )

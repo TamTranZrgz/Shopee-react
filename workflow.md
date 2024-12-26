@@ -218,7 +218,33 @@ Ex: display rating (series of star) if rating = 3.4
 
 ### 5.1. UI Product Detail
 
-- create folder `ProductDetail` in `pages` folder, set route in `useRouteElements` file
+- create folder `ProductDetail` in `pages` folder, set route `:id` in `useRouteElements` file
+
+- There are 2 main parts: product info (images, title, rating, sold number, price, cart, CTA button) and product description (description is provided in html code)
+
+- use `DOMPurify` package to exclude JS from `html code` => to prevent XSS attack
+
+### 5.2. Image Slider of product
+
+- product detail page
+
+### 5.3. Image Zooming
+
+- hover on active image and the image will be zoomed
+
+- when we hover and move on relative `div` (onMouseMove), the `absolute image` will re-set up top and left (with `style` property on `img` element), while height and width will be calculated again (bigger) going back to original width and height of image. Or we can use `ref`
+
+- potential problem: bubble event => hover on parent `div` as the same time as son `div` => use `pointer-event-none` to `image` element to prevent this element receieve the event, and only the `div` element get it
+
+### 5.4. URL friendly with SEO (like Shopee)
+
+- URL form : host/name-of-product-i.id (in `Product` component)
+
+If we delete `name-of-product`, link still work because link will use `id` as query to call api product
+
+- Before displaying info on URL, we should `sanitize` them to remove `special characters` such as `/` => create `generateNameAndId` in `utils.ts` file
+
+- Issue: `vite` will not regconize `.` on URL => can sustitute `.` with `-`
 
 ## Reference:
 
