@@ -1,6 +1,6 @@
 import { createSearchParams, useNavigate } from 'react-router'
 import path from '../../../../constants/path'
-import { QueryConfig } from '../../ProductList'
+import { QueryConfig } from '../../../../hooks/useQueryConfig'
 
 /**
  * index: index of line

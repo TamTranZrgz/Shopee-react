@@ -6,7 +6,8 @@ import ProductRating from '../../components/ProductRating'
 import { formatCurrency, formatNumberToSocialStyle, getIdFromNameAndId, saleRate } from '../../utils/utils'
 import NumberInput from '../../components/NumberInput'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Product } from '../../types/product.type'
+import { Product as ProductType, ProductListConfig } from '../../types/product.type'
+import Product from '../ProductList/components/Product'
 
 export default function ProductDetail() {
   const { nameAndId } = useParams()
@@ -24,7 +25,7 @@ export default function ProductDetail() {
 
   // Get product details
   const product = productDetailData?.data.data
-  //console.log(product)
+  console.log(product)
 
   // For zooming image
   const imageRef = useRef<HTMLImageElement>(null)
@@ -36,6 +37,16 @@ export default function ProductDetail() {
   )
   // console.log(currentImages)
 
+  // Get similar products (base on category)
+  const queryConfig: ProductListConfig = { limit: '20', page: '1', category: product?.category._id }
+  const { data: productsData } = useQuery({
+    queryKey: ['products', queryConfig],
+    queryFn: () => productApi.getProducts(queryConfig),
+    enabled: Boolean(product), // only use query to call api when product is available
+    staleTime: 3 * 60 * 1000 // 3 minutes
+  })
+  console.log(productsData)
+
   // set active image when calling to product api
   useEffect(() => {
     if (product && product.images.length > 0) {
@@ -46,7 +57,7 @@ export default function ProductDetail() {
   // Slider handle
   const next = () => {
     console.log(currentImagesIndex[1])
-    if (currentImagesIndex[1] < (product as Product)?.image.length) {
+    if (currentImagesIndex[1] < (product as ProductType)?.image.length) {
       setCurrentImagesIndex((prev) => [prev[0] + 1, prev[1] + 1])
     }
   }
@@ -258,21 +269,41 @@ export default function ProductDetail() {
       {/* Product Info */}
 
       {/* Product Description */}
-      <div className='container'>
-        <div className='shadpw mt-8 bg-white p-4'>
-          <div className='rounded bg-gray-50 p-4 text-lg capitalize text-slate-700'>Mô tả sản phẩm</div>
-          <div className='mx-4 mb-4 mt-12 text-sm leading-loose'>
-            {/* Render HTML text in react component */}
-            <div
-              dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(product.description)
-              }}
-            />
-            {/* Render HTML in react component */}
+      <div className='mt-8'>
+        <div className='container'>
+          <div className='shadpw mt-8 bg-white p-4'>
+            <div className='rounded bg-gray-50 p-4 text-lg capitalize text-slate-700'>Mô tả sản phẩm</div>
+            <div className='mx-4 mb-4 mt-12 text-sm leading-loose'>
+              {/* Render HTML text in react component */}
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(product.description)
+                }}
+              />
+              {/* Render HTML in react component */}
+            </div>
           </div>
         </div>
       </div>
+
       {/* Product Description */}
+
+      {/* Similar products */}
+      <div className='mt-8'>
+        <div className='container'>
+          <div className='uppercase text-gray-400'>CÓ THỂ BẠN CŨNG THÍCH</div>
+          {productsData && (
+            <div className='mt-6 grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6'>
+              {productsData.data.data.products.map((product) => (
+                <div className='col-span-1' key={product._id}>
+                  <Product product={product} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      {/* Similar products */}
     </div>
   )
 }

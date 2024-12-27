@@ -95,7 +95,8 @@ export const schema = yup.object({
     name: 'price-not-allowed', // name of test
     message: 'Gia khong phu hop',
     test: testPriceMinMax
-  })
+  }),
+  name: yup.string().trim().required(MESSAGES.PRODUCT_NAME_IS_REQUIRED)
 })
 
 // omit `confirm_password` field from main schema to get schema for 'login' form

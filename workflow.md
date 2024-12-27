@@ -246,6 +246,20 @@ If we delete `name-of-product`, link still work because link will use `id` as qu
 
 - Issue: `vite` will not regconize `.` on URL => can sustitute `.` with `-`
 
+### 5.5. Search function
+
+- on URL in `ProductList` page, we use `QueryConfig` to work with query params on url. Now we need to use thses `QueryConfig` on `Header` component to know on which state we are (which filter we are using).
+
+- if we check `Components` on Devtool, Header and `ProductList` will be on the same level => to get `QueryConfig` for `Header` , we will use a customized hook named `useQueryConfig` which will check url and retrieve the `queryConfig` (query params), so both components can use this `QueryConfig` without transfer them from `ProductList` to `Header`
+
+- for `search` form, we dont need to validate the entry data. we only refuse to let user submit if there is nothing enter.
+
+### 5.6. Similar products
+
+### 5.7. Separate `QuantityController` component
+
+- Because this component is reusable (in `cart`, `product details`), we will seperate it as an independent component
+
 ## Reference:
 
 [Format_a_number_as_currency_in_js](https://dev.to/saranshk/how-to-format-a-number-as-currency-in-javascript-587b)

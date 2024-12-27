@@ -1,40 +1,17 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
-import { omitBy, isUndefined } from 'lodash'
-import AsideFilter from './components/AsideFilter'
 
-import useQueryParams from '../../hooks/useQueryParams'
+import AsideFilter from './components/AsideFilter'
 import productApi from '../../api/product.api'
 import Pagination from '../../components/Pagination'
 import { ProductListConfig } from '../../types/product.type'
 import categoryApi from '../../api/category.api'
 import SortProductList from './components/SortProductList'
 import Product from './components/Product'
-
-export type QueryConfig = {
-  [key in keyof ProductListConfig]: string
-}
+import useQueryConfig from '../../hooks/useQueryConfig'
 
 export default function ProductList() {
-  // 'useQueryParams' is a customed hook to retrieve query params from url
-  // queryParams will be always string (get from URL)
-  const queryParams: QueryConfig = useQueryParams()
-
-  // 'omitBy' will exclude queries that have undefined value
-  const queryConfig: QueryConfig = omitBy(
-    {
-      page: queryParams.page || '1',
-      limit: queryParams.limit || '20',
-      sort_by: queryParams.sort_by,
-      excluded: queryParams.excluded,
-      name: queryParams.name,
-      order: queryParams.order,
-      price_max: queryParams.price_max,
-      price_min: queryParams.price_min,
-      rating_filter: queryParams.rating_filter,
-      category: queryParams.category
-    },
-    isUndefined
-  )
+  // useQueryConfig is a customized hook that config all query params of URL
+  const queryConfig = useQueryConfig()
 
   // For product listing
   const { data: productsData } = useQuery({
@@ -45,7 +22,8 @@ export default function ProductList() {
     queryFn: () => {
       return productApi.getProducts(queryConfig as ProductListConfig)
     },
-    placeholderData: keepPreviousData
+    placeholderData: keepPreviousData,
+    staleTime: 3 * 60 * 1000 // 3 minutes
   })
 
   // For category listing on asideFilter

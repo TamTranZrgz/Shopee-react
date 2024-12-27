@@ -21,9 +21,7 @@ export default function Product({ product }: Props) {
           />
         </div>
         <div className='overflow-hidden p-2'>
-          <div className='line-clamp-2 min-h-[2rem] text-xs'>
-            Reloj deportivo digital para hombre NAVIFORCE multifuncional con correa de cuero genuino
-          </div>
+          <div className='line-clamp-2 min-h-[2rem] text-xs'>{product.name}</div>
           <div className='mt-3 flex items-center'>
             <div className='max-w-[50%] truncate text-gray-500 line-through'>
               <span className='text-xs'>₫</span>

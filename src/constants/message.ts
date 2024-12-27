@@ -11,5 +11,8 @@ export const MESSAGES = {
   // Confirm_Password
   CONFIRM_PASSWORD_IS_REQUIRED: 'Confirm password is required',
   CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_160_CHARACTERS: 'Confirm password length must be from 6 - 160 chracters',
-  CONFIRM_PASSWORD_DOES_NOT_MATCH: 'Confirm_password does not match'
+  CONFIRM_PASSWORD_DOES_NOT_MATCH: 'Confirm_password does not match',
+
+  // Search form
+  PRODUCT_NAME_IS_REQUIRED: 'Product name is required'
 } as const
