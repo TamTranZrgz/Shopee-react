@@ -258,7 +258,28 @@ If we delete `name-of-product`, link still work because link will use `id` as qu
 
 ### 5.7. Separate `QuantityController` component
 
-- Because this component is reusable (in `cart`, `product details`), we will seperate it as an independent component
+- Because this component is reusable (in `cart`, `product details`), we will seperate it as an independent component.
+
+- This component is a combination between 2 buttons and 1 input.
+
+- Functioning: each product has a limit units available (inventory), if we add (click on `+` button) more than number of inventory, it will go back to number of inventory.
+
+### 5.8. Analyze and define `purchases` api
+
+- We will define 2 api:
+
+1. POST `add-to-cart`
+2. GET `purchases` with query param which display status of products in cart (from -1 to 5)
+
+- Create `purchase` type (`types` folder)
+- Define `purchaseApi` (including get `/purchases` and `/purchases/add-to-cart`)
+- Create `purchaseStatus` constant (`constant` folder)
+
+### 5.9. Add product to cart
+
+- add `addToCart` function in `ProductDetail`
+- display products in `cart` on `Header`
+- Flow: `addToCart`, and call again `/purchases` api, to get purchase list, to update the cart on `Header`
 
 ## Reference:
 

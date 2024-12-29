@@ -1,6 +1,6 @@
 import { forwardRef, InputHTMLAttributes } from 'react'
 
-interface Props extends InputHTMLAttributes<HTMLInputElement> {
+export interface NumberInputProps extends InputHTMLAttributes<HTMLInputElement> {
   errorMessage?: string
   classNameInput?: string
   classNameError?: string
@@ -8,7 +8,7 @@ interface Props extends InputHTMLAttributes<HTMLInputElement> {
 
 // this component will not inherit from 'Input' component
 // because it will not recieve `register`, but recieve `onChange`
-const NumberInput = forwardRef<HTMLInputElement, Props>(function NumberInputInner(
+const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(function NumberInputInner(
   {
     errorMessage,
     className,
