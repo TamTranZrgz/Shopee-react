@@ -1,50 +1,24 @@
-import { createSearchParams, Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { useContext } from 'react'
 import Popover from '../Popover'
-import { useMutation, useQuery } from '@tanstack/react-query'
-import authApi from '../../api/auth.api'
+import { useQuery } from '@tanstack/react-query'
 import { AppContext } from '../../contexts/app.context'
 import path from '../../constants/path'
-import useQueryConfig from '../../hooks/useQueryConfig'
-import { useForm } from 'react-hook-form'
-import { schema, Schema } from '../../utils/rules'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { omit } from 'lodash'
 import { purchaseStatus } from '../../constants/purchase'
 import purchaseApi from '../../api/purchase.api'
 import noProduct from '../../assets/images/no-product.png'
-import classNames from 'classnames'
 import { formatCurrency } from '../../utils/utils'
-
-type FormData = Pick<Schema, 'name'>
-
-const nameSchema = schema.pick(['name'])
+import NavHeader from '../NavHeader'
+import useSearchProducts from '../../hooks/useSearchProducts'
 
 const MAX_DISPLAY_PRODUCTS_IN_CART = 5
 
 export default function Header() {
-  const navigate = useNavigate()
-  // get query params from url
-  const queryConfig = useQueryConfig()
-  // console.log(queryConfig)
-
-  // use react-hook-form to get useForm
-  const { register, handleSubmit } = useForm<FormData>({
-    defaultValues: {
-      name: ''
-    },
-    resolver: yupResolver(nameSchema)
-  })
-
   // use appContext and react-query to work with authentication
-  const { setIsAuthenticated, isAuthenticated, setProfile, profile } = useContext(AppContext)
-  const logoutMutation = useMutation({
-    mutationFn: authApi.logout,
-    onSuccess: () => {
-      setIsAuthenticated(false)
-      setProfile(null)
-    }
-  })
+  const { isAuthenticated } = useContext(AppContext)
+
+  // call `useSearchProducts` hook for search form
+  const { handleSearch, register } = useSearchProducts()
 
   // Display products in cart
   // useQuery only call api again if `Header` is unmounted and mounted again
@@ -57,131 +31,18 @@ export default function Header() {
         status: purchaseStatus.inCart
       }
     ],
-    queryFn: () => purchaseApi.getPurchaseList({ status: purchaseStatus.inCart })
+    queryFn: () => purchaseApi.getPurchaseList({ status: purchaseStatus.inCart }),
+    enabled: isAuthenticated // only call api if user is authenticated
   })
 
   const purchasesInCart = purchasesInCartData?.data.data
-
-  // handle logout
-  const handleLogout = () => {
-    logoutMutation.mutate()
-  }
-
-  // handle search
-  const handleSearch = handleSubmit((data) => {
-    // console.log(data)
-    const config = queryConfig.order
-      ? omit(
-          {
-            ...queryConfig,
-            name: data.name
-          },
-          ['order', 'sort_by']
-        )
-      : {
-          ...queryConfig,
-          name: data.name
-        }
-
-    navigate({
-      pathname: path.home,
-      search: createSearchParams(config).toString()
-    })
-  })
+  // console.log(purchasesInCart)
 
   return (
     <div className='bg-[linear-gradient(-180deg,_#f53d2d,_#f63)] pb-5 pt-2 text-white'>
       <div className='container'>
         {/* Nav 1 */}
-        <div className='flex justify-end'>
-          {/* Language */}
-          <Popover
-            className='flex cursor-pointer items-center py-1 hover:text-white/70'
-            renderPopover={
-              <div className='relative rounded-sm border border-gray-200 bg-white shadow-md'>
-                <div className='flex flex-col py-2 pl-3 pr-28'>
-                  <button className='px-3 py-2 hover:text-orange'>Tieng Viet</button>
-                  <button className='px-3 py-2 hover:text-orange'>English</button>
-                </div>
-              </div>
-            }
-          >
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='size-5'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                d='M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418'
-              />
-            </svg>
-            <span className='mx-1'>Vietnamese</span>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              fill='none'
-              viewBox='0 0 24 24'
-              strokeWidth={1.5}
-              stroke='currentColor'
-              className='size-5'
-            >
-              <path strokeLinecap='round' strokeLinejoin='round' d='m19.5 8.25-7.5 7.5-7.5-7.5' />
-            </svg>
-          </Popover>
-
-          {/* Profile */}
-          {isAuthenticated && (
-            <Popover
-              className='ml-6 flex cursor-pointer items-center py-1 hover:text-white/70'
-              renderPopover={
-                <div className='relative rounded-sm border border-gray-200 bg-white shadow-md'>
-                  <Link
-                    to={path.profile}
-                    className='block w-full bg-white px-4 py-3 text-left hover:bg-slate-100 hover:text-cyan-500'
-                  >
-                    Tai khoan cua toi
-                  </Link>
-                  <Link
-                    to={path.home}
-                    className='block w-full bg-white px-3 py-2 text-left hover:bg-slate-100 hover:text-cyan-500'
-                  >
-                    Don mua
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className='block w-full bg-white px-3 py-2 text-left hover:bg-slate-100 hover:text-cyan-500'
-                  >
-                    Dang xuat
-                  </button>
-                </div>
-              }
-            >
-              <div className='mr-2 h-5 w-5 flex-shrink-0'>
-                <img
-                  src='https://images.pexels.com/photos/850359/pexels-photo-850359.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
-                  alt='avatar'
-                  className='h-full w-full rounded-full object-cover'
-                />
-              </div>
-              <div>{profile?.email}</div>
-            </Popover>
-          )}
-          {!isAuthenticated && (
-            <div className='flex items-center'>
-              <Link to={path.register} className='mx-3 capitalize hover:text-white/70'>
-                Dang Ky
-              </Link>
-              <div className='h-4 border-r-[1px] border-r-white/40' />
-              <Link to={path.login} className='mx-3 capitalize hover:text-white/70'>
-                Dang Nhap
-              </Link>
-            </div>
-          )}
-        </div>
+        <NavHeader />
         {/* Nav 1 */}
 
         {/* Nav 2 */}
@@ -228,7 +89,7 @@ export default function Header() {
             className='cols-span-1 justify-self-end'
             renderPopover={
               <div className='relative max-w-[400px] rounded-sm border border-gray-200 bg-white text-sm shadow-md'>
-                {purchasesInCart ? (
+                {purchasesInCart && purchasesInCart.length > 0 ? (
                   <div className='p-2'>
                     <div className='capitalize text-gray-400'>San Pham Moi Them</div>
                     <div className='mt-5'>
@@ -258,13 +119,16 @@ export default function Header() {
                         {''}
                         Them Hang vao Gio
                       </div>
-                      <button className='rounded-sm bg-orange px-4 py-2 capitalize text-white hover:bg-opacity-90'>
+                      <Link
+                        to={path.cart}
+                        className='rounded-sm bg-orange px-4 py-2 capitalize text-white hover:bg-opacity-90'
+                      >
                         Xem Gio Hang
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 ) : (
-                  <div className='flex h-[300px] w-[300px] items-center justify-center p-2'>
+                  <div className='flex h-[300px] w-[300px] flex-col items-center justify-center p-2'>
                     <img src={noProduct} alt='no purchase' className='h-24 w-24' />
                     <div className='mt-3 capitalize'>Chua co san pham</div>
                   </div>
@@ -288,9 +152,11 @@ export default function Header() {
                   d='M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z'
                 />
               </svg>
-              <span className='absolute left-[17px] top-[-5px] rounded-full bg-white px-[9px] py-[1px] text-xs text-orange'>
-                {purchasesInCart?.length}
-              </span>
+              {purchasesInCart && purchasesInCart.length > 0 && (
+                <span className='absolute left-[17px] top-[-5px] rounded-full bg-white px-[9px] py-[1px] text-xs text-orange'>
+                  {purchasesInCart?.length}
+                </span>
+              )}
             </Link>
           </Popover>
           {/* Cart */}

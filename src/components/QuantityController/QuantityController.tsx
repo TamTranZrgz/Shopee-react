@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import NumberInput, { NumberInputProps } from '../NumberInput'
 
 interface Props extends NumberInputProps {
@@ -5,6 +6,7 @@ interface Props extends NumberInputProps {
   onIncrease?: (value: number) => void // for increase button
   onDecrease?: (value: number) => void // for decrease button
   onType?: (value: number) => void // for input
+  onFocusOut?: (value: number) => void // for input
   classNameWrapper?: string
 }
 
@@ -13,10 +15,13 @@ export default function QuantityController({
   onIncrease,
   onDecrease,
   onType,
+  onFocusOut,
   classNameWrapper = 'ml-10',
   value, // value will be controlled by his parent component
   ...rest
 }: Props) {
+  const [localValue, setLocalValue] = useState<number>(Number(value || 0))
+
   // Control action on number input
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let _value = Number(event.target.value) // convert input data from user to number, and it will not be an event
@@ -27,22 +32,29 @@ export default function QuantityController({
     }
 
     onType && onType(_value)
+    setLocalValue(_value)
   }
 
   const increase = () => {
-    let _value = Number(value) + 1
+    let _value = Number(value || localValue) + 1
     if (max !== undefined && _value > max) {
       _value = max
     }
     onIncrease && onIncrease(_value)
+    setLocalValue(_value)
   }
 
   const decrease = () => {
-    let _value = Number(value) - 1
+    let _value = Number(value || localValue) - 1
     if (_value < 1) {
       _value = 1
     }
     onDecrease && onDecrease(_value)
+    setLocalValue(_value)
+  }
+
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement, Element>) => {
+    onFocusOut && onFocusOut(Number(event.target.value))
   }
 
   return (
@@ -67,7 +79,8 @@ export default function QuantityController({
         classNameError='hidden'
         classNameInput='h-8 w-14 border-b border-t border-gray-300 p-1 text-center outline-none'
         onChange={handleChange}
-        value={value} // value is input data from user
+        onBlur={handleBlur}
+        value={value || localValue} // value is input data from user
         {...rest}
       />
       <button

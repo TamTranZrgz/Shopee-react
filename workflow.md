@@ -279,7 +279,93 @@ If we delete `name-of-product`, link still work because link will use `id` as qu
 
 - add `addToCart` function in `ProductDetail`
 - display products in `cart` on `Header`
-- Flow: `addToCart`, and call again `/purchases` api, to get purchase list, to update the cart on `Header`
+- Flow: `addToCart`, and call again `/purchases` api, to get purchase list, to update the cart on `Header`.
+
+## 6. Cart Page
+
+### 6.1. Update InputNumber and quantityController with local state component
+
+### 6.2. Use useController API to create InputV2
+
+- this is an API from react-hook-form, help to shorten code related to Controller of react-hook-form. And this component is only used with react-hook-form. This input can sustitute both `Input` component and `NumberInput` component.
+- Test only on `AsideFilter` component, not `QuantityController` or `NumberInput` component
+
+### 6.3. Define Api for purchasing in cart and fix logout mistake which has not cleaned data on React Query
+
+- when logout, `Header` will not call again the `purchases` api to get list of buy on `cart` item
+- after logout, the buy list popover on `cart` item must be cleared
+- define api of purchasing: put `update-purchase`, delete and post `buy-product`
+
+### 6.4. Code Cart page UI
+
+- add route in `useRouteElements` file
+- create `Cart` folder in `pages`
+
+### 6.5. Manage `Checked` all and `unChecked`all in cart
+
+- use `useState` hook to manage state of each purchase, add more properties to state including : `checked` and `disabled`
+
+- can use `immer` package simplify the change of state in redux
+
+### 6.6. Update purchase in Cart
+
+- work with `QuantityController` component
+- call `update` api whenever increase or decrease the quantity, and if modify by number, api will be called after finishing auto-focus on `numberInput`
+- use `keyBy` of lodash => use `keyBy` \_id to get purchase
+
+### 6.7. Delete purchase and buy product
+
+- For `delete`, will have delete 1 purchase or many purchases at the same time => create two delete method for two cases.
+
+### 6.8. UI CartLayout and custom hook `useSearchProducts`
+
+- separate the upper part of Header as `NavHeader` component with function `logout` and links to `Profile` and `My Order`
+
+- create `useSearchProducts` hook to use for both search froms in `CartHeader` and `Header`
+
+### 6.9. Function to buy only product when clicking on button `Buy Now`
+
+- use `useLocation` of `react-hook` to transfer state from one page to another
+
+- when click on button `Buy Now` on `Product Detail` page (state as null) , a `purchase` api will be called to add a new purchase to the purchases list, navigate user to the `cart` page with the new state (info of new purchase), this info can be retrieved by using `useLocation` hook from `react-router`. Therefore, the new purchase will appear in `Cart` page with a `checked` state.
+
+```ts
+{pathname: '/cart', search: '', hash: '', state: {…}, key: 'nt31l92b'}
+hash: ""
+key: "nt31l92b"
+pathname: "/cart"
+search: ""
+state:
+  purchaseId: "6776e806fb373204161ed439"
+  [[Prototype]]: Object
+[[Prototype]]: Object
+```
+
+- In this app, state of cart will only be reset when we use `F5` (unmount and mount the component again). But when we are in cart, there are some purchases which have been checked, we navigate to another page, and later coming back to `cart` page, the `checked` purchases are stilled in `checked` state, not losing it previous state. So solve this problem, we will use `contextApi` to save the state as a global state, we will still maintain the state when moving between `pages` => move `extendedPurchases` to appContext.
+
+- use `useMemo` to optimize performance, for loop or calculation such as :
+
+```ts
+// check if all purchase is `checked`
+// if all purchases are checked, this input will be checked
+const isAllChecked = extendedPurchases.every((purchase) => purchase.checked)
+
+// get checked purchases and its length
+const checkedPurchases = extendedPurchases.filter((purchase) => purchase.checked)
+const checkedPurchasesCount = checkedPurchases.length
+
+// calculate total price of checked purchases
+const totalCheckedPurchasesValue = checkedPurchases.reduce((result, current) => {
+  return result + current.product.price * current.buy_count
+}, 0)
+
+// calculate saved money
+const totalCheckedSavingValue = checkedPurchases.reduce((result, current) => {
+  return result + (current.product.price_before_discount - current.product.price) * current.buy_count
+}, 0)
+```
+
+- Note: use `useMemo`, need to pass enough dependencies. Using `useMemo`, we will only re-compute above value again when one of the dependencies has changed. For `variable`, use `useMemo`. For function, use `useCallback`
 
 ## Reference:
 

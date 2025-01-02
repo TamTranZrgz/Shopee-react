@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import DOMPurify from 'dompurify' // exclude js from html
 import productApi from '../../api/product.api'
 import ProductRating from '../../components/ProductRating'
@@ -11,8 +11,10 @@ import QuantityController from '../../components/QuantityController'
 import purchaseApi from '../../api/purchase.api'
 import { purchaseStatus } from '../../constants/purchase'
 import { toast } from 'react-toastify'
+import path from '../../constants/path'
 
 export default function ProductDetail() {
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   // for Quantity Controller component
   const [buyCount, setBuyCount] = useState(1)
@@ -139,6 +141,19 @@ export default function ProductDetail() {
         }
       }
     )
+  }
+
+  // Handle buy product immediately
+  const buyNow = async () => {
+    const res = await addTocartMutation.mutateAsync({ buy_count: buyCount, product_id: product?._id as string })
+    const purchase = res.data.data
+
+    // navigate to cart page with the current state (info of the current purchase)
+    navigate(path.cart, {
+      state: {
+        purchaseId: purchase._id
+      }
+    })
   }
 
   if (!product) return null
@@ -274,7 +289,10 @@ export default function ProductDetail() {
                   </svg>
                   Thêm vào giỏ hàng
                 </button>
-                <button className='ml-4 flex h-12 min-w-[5rem] items-center justify-center rounded-sm bg-orange px-5 capitalize text-white shadow-sm outline-none hover:bg-orange/90'>
+                <button
+                  onClick={buyNow}
+                  className='ml-4 flex h-12 min-w-[5rem] items-center justify-center rounded-sm bg-orange px-5 capitalize text-white shadow-sm outline-none hover:bg-orange/90'
+                >
                   Mua ngay
                 </button>
               </div>
