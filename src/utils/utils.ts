@@ -1,5 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import HttpStatusCode from '../constants/httpStatusCode.enum'
+import config from '../constants/config'
+import userImage from '../assets/images/user.svg'
 
 // syntax: type predecated of Typescript
 export function isAxiosError<T>(error: unknown): error is AxiosError<T> {
@@ -40,3 +42,5 @@ export const getIdFromNameAndId = (nameAndId: string) => {
   const arr = nameAndId.split('-i-')
   return arr[arr.length - 1]
 }
+
+export const getAvatarUrl = (avatarName?: string) => (avatarName ? `${config.baseUrl}images/${avatarName}` : userImage)

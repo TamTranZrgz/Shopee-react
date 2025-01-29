@@ -4,6 +4,7 @@ import { toast } from 'react-toastify'
 import { AuthResponse } from '../types/auth.type'
 import { clearLocalStorage, getAccessTokenFromLS, setAccessTokenToLS, setProfileToLS } from './auth'
 import path from '../constants/path'
+import config from '../constants/config'
 
 class Http {
   instance: AxiosInstance
@@ -13,7 +14,7 @@ class Http {
     // When we need it, we can retrieve it faster than retrieving it from LS
     this.accessToken = getAccessTokenFromLS()
     this.instance = axios.create({
-      baseURL: 'https://api-ecom.duthanhduoc.com',
+      baseURL: config.baseUrl,
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json'
@@ -65,9 +66,15 @@ class Http {
         // console.log(error)
         if (error.response?.status !== HttpStatusCode.UnprocessableEntity) {
           const data: any | undefined = error.response?.data
-          const message = data.message || error.message // take error.message if not have data.message
+          const message = data?.message || error.message // take error.message if not have data.message
           toast.error(message)
         }
+
+        if (error.response?.status !== HttpStatusCode.Unauthorized) {
+          clearLocalStorage()
+          // window.location.reload() // the same as F5 refresh the app
+        }
+
         return Promise.reject(error)
       }
     )

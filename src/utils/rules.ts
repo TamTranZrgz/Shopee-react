@@ -106,3 +106,16 @@ const loginSchema = schema.omit(['confirm_password'])
 export type Schema = yup.InferType<typeof schema>
 
 export type LoginSchema = yup.InferType<typeof loginSchema>
+
+export const userSchema = yup.object({
+  name: yup.string().max(160, 'Do dai toi da la 160 ky tu'),
+  phone: yup.string().max(20, 'Do dai toi da la 20 ky tu'),
+  address: yup.string().max(160, 'Do dai toi da la 160 ky tu'),
+  avatar: yup.string().max(1000, 'Do dai toi da la 1000 ky tu'),
+  date_of_birth: yup.date().max(new Date(), 'Hay chon mot ngay trong qua khu'),
+  password: schema.fields['password'],
+  new_password: schema.fields['password'],
+  confirm_password: schema.fields['confirm_password']
+})
+
+export type UserSchema = yup.InferType<typeof userSchema>

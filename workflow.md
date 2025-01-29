@@ -367,6 +367,30 @@ const totalCheckedSavingValue = checkedPurchases.reduce((result, current) => {
 
 - Note: use `useMemo`, need to pass enough dependencies. Using `useMemo`, we will only re-compute above value again when one of the dependencies has changed. For `variable`, use `useMemo`. For function, use `useCallback`
 
+### 7. User Page
+
+- We will clone Profile, My account, Change Password, and Purchase functions
+
+- Route: /user/account, user/purchase, etc. -> is a nested route, create path, add UserLayout
+
+- code UI UserSideNav
+
+- code UI Profile: form will be multipages -> useFormContext
+
+### 7.1. Define and test API for profile
+
+- update type of User
+- creat api for user: get profile, update profile, upload avatar, etc. (`user.api` file)
+
+### 7.2. Other actions
+
+- display info on form
+- display avatar on NavHeader, UserSideNav
+
+### 7.3. Upload avatar
+
+- in Profile, there is a button and hidden input. Hidden input is the one when you click on, will allow you to choose the file to upload. But it's hidden, so you need to trigger an event on it, and click on button will allow you to choose image. => use useRef hook
+
 ## Reference:
 
 [Format_a_number_as_currency_in_js](https://dev.to/saranshk/how-to-format-a-number-as-currency-in-javascript-587b)
