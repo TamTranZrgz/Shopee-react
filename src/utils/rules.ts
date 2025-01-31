@@ -67,6 +67,15 @@ function testPriceMinMax(this: yup.TestContext<yup.AnyObject>) {
   return price_min !== '' || price_max !== ''
 }
 
+const handleConfirmPasswordYup = (refString: string) => {
+  return yup
+    .string()
+    .required(MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED)
+    .min(6, MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_160_CHARACTERS)
+    .max(160, MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_160_CHARACTERS)
+    .oneOf([yup.ref(refString)], MESSAGES.CONFIRM_PASSWORD_DOES_NOT_MATCH)
+}
+
 // this schema can be considered as main schema, and can be used for different form validation, by `obmit` some fields if not neccessary
 export const schema = yup.object({
   email: yup
@@ -80,12 +89,7 @@ export const schema = yup.object({
     .required(MESSAGES.PASSWORD_IS_REQUIRED)
     .min(6, MESSAGES.PASSWORSD_LENGTH_MUST_BE_FROM_6_TO_160_CHARACTERS)
     .max(160, MESSAGES.PASSWORSD_LENGTH_MUST_BE_FROM_6_TO_160_CHARACTERS),
-  confirm_password: yup
-    .string()
-    .required(MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED)
-    .min(6, MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_160_CHARACTERS)
-    .max(160, MESSAGES.CONFIRM_PASSWORD_LENGTH_MUST_BE_FROM_6_TO_160_CHARACTERS)
-    .oneOf([yup.ref('password')], MESSAGES.CONFIRM_PASSWORD_DOES_NOT_MATCH),
+  confirm_password: handleConfirmPasswordYup('password'),
   price_min: yup.string().test({
     name: 'price-not-allowed', // name of test
     message: 'Gia khong phu hop',
@@ -115,7 +119,7 @@ export const userSchema = yup.object({
   date_of_birth: yup.date().max(new Date(), 'Hay chon mot ngay trong qua khu'),
   password: schema.fields['password'],
   new_password: schema.fields['password'],
-  confirm_password: schema.fields['confirm_password']
+  confirm_password: handleConfirmPasswordYup('new_password')
 })
 
 export type UserSchema = yup.InferType<typeof userSchema>

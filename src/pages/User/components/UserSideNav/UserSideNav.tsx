@@ -1,22 +1,25 @@
-import { Link } from 'react-router'
+import { NavLink } from 'react-router'
 import path from '../../../../constants/path'
-import { Fragment } from 'react/jsx-runtime'
 import { useContext } from 'react'
 import { AppContext } from '../../../../contexts/app.context'
 import userImage from '../../../../assets/images/user.svg'
 import { getAvatarUrl } from '../../../../utils/utils'
+import classNames from 'classnames'
 
 export default function UserSideNav() {
   const { profile } = useContext(AppContext)
   return (
     <div>
       <div className='flex items-center border-b border-b-gray-200 py-4'>
-        <Link to={path.profile} className='h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-black/10'>
+        <NavLink
+          to={path.profile}
+          className='h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-black/10'
+        >
           <img src={getAvatarUrl(profile?.avatar)} alt='' className='h-full w-full object-cover' />
-        </Link>
+        </NavLink>
         <div className='flex-grow pl-4'>
           <div className='mb-1 truncate font-semibold text-gray-600'>{profile?.email}</div>
-          <Link to={path.profile} className='flex items-center capitalize text-gray-500'>
+          <NavLink to={path.profile} className='flex items-center capitalize text-gray-500'>
             <svg
               width={12}
               height={12}
@@ -31,17 +34,33 @@ export default function UserSideNav() {
               />
             </svg>
             Sửa hồ sơ
-          </Link>
+          </NavLink>
         </div>
       </div>
       <div className='mt-7'>
-        <Link to={path.profile} className='flex items-center capitalize text-orange transition-colors'>
+        <NavLink
+          to={path.profile}
+          className={({ isActive }) =>
+            classNames('flex items-center capitalize transition-colors', {
+              'text-orange': isActive,
+              'text-gray-600': !isActive
+            })
+          }
+        >
           <div className='mr-3 h-[22px] w-[22px]'>
             <img className='h-full w-full' src={userImage} alt='' />
           </div>
           Tài khoản của tôi
-        </Link>
-        <Link to={path.changePassword} className='mt-4 flex items-center capitalize text-gray-600 transition-colors'>
+        </NavLink>
+        <NavLink
+          to={path.changePassword}
+          className={({ isActive }) =>
+            classNames('mt-4 flex items-center capitalize transition-colors', {
+              'text-orange': isActive,
+              'text-gray-600': !isActive
+            })
+          }
+        >
           <div className='mr-3 h-[22px] w-[22px]'>
             <img
               className='h-full w-full'
@@ -50,8 +69,16 @@ export default function UserSideNav() {
             />
           </div>
           Đổi mật khẩu
-        </Link>
-        <Link to={path.historyPurchase} className='mt-4 flex items-center capitalize text-orange transition-colors'>
+        </NavLink>
+        <NavLink
+          to={path.historyPurchase}
+          className={({ isActive }) =>
+            classNames('mt-4 flex items-center capitalize transition-colors', {
+              'text-orange': isActive,
+              'text-gray-600': !isActive
+            })
+          }
+        >
           <div className='mr-3 h-[22px] w-[22px]'>
             <img
               alt=''
@@ -60,7 +87,7 @@ export default function UserSideNav() {
             ></img>
           </div>
           Đơn Mua
-        </Link>
+        </NavLink>
       </div>
     </div>
   )

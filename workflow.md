@@ -387,9 +387,22 @@ const totalCheckedSavingValue = checkedPurchases.reduce((result, current) => {
 - display info on form
 - display avatar on NavHeader, UserSideNav
 
-### 7.3. Upload avatar
+### 7.3. Upload avatar image
 
 - in Profile, there is a button and hidden input. Hidden input is the one when you click on, will allow you to choose the file to upload. But it's hidden, so you need to trigger an event on it, and click on button will allow you to choose image. => use useRef hook
+
+### 7.4. Separate InputFile & Active NavLink for UserSideNav
+
+- Separate the part of upload image in `Profile` page into a separate component called `InputFile`
+- use `NavLink` from `react` to implement `isActive` property
+
+### 7.5. Use useFormContext in `react hook form`
+
+- use in case form is complex, with many components and can not separate those components into simpler components
+
+### 7.6. Code logic for changing password
+
+### 7.7. Code Purchases
 
 ## Reference:
 

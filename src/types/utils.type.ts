@@ -17,6 +17,6 @@ export interface ErrorResponse<Data> {
 }
 
 // syntax '-?' : exclude/omit undefined key of key with optional ( key with ?)
-export type NoUndefindedField<T> = {
-  [P in keyof T]-?: NoUndefindedField<NonNullable<T[P]>>
+export type NoUndefinedField<T> = {
+  [P in keyof T]-?: NoUndefinedField<NonNullable<T[P]>>
 }
